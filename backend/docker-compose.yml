@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai_assistant_db
+    environment:
+      POSTGRES_DB: ai_assistant
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_INITDB_ARGS: "--auth-host=md5"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # ─── Asterisk ARI (SIP через Zadarma) ──────────────────
+  asterisk:
+    build: ./asterisk
+    container_name: ai_asterisk
+    ports:
+      - "5060:5060/udp"              # SIP сигнализация
+      - "8088:8088"                  # ARI HTTP + WebSocket ← вот где была проблема
+      - "10000-10100:10000-10100/udp" # RTP аудио
+    environment:
+      ASTERISK_EXTERNAL_IP: ${ASTERISK_EXTERNAL_IP:-127.0.0.1}
+      ZADARMA_SIP_PASSWORD: ${ZADARMA_SIP_PASSWORD}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./asterisk/pjsip.conf:/etc/asterisk/pjsip.conf:ro
+      - ./asterisk/extensions.conf:/etc/asterisk/extensions.conf:ro
+      - ./asterisk/ari.conf:/etc/asterisk/ari.conf:ro
+      - ./asterisk/http.conf:/etc/asterisk/http.conf:ro
+      - ./asterisk/rtp.conf:/etc/asterisk/rtp.conf:ro
+      - ./asterisk/modules.conf:/etc/asterisk/modules.conf:ro
+      - ./asterisk/sounds:/var/lib/asterisk/sounds/custom
+      - ./asterisk/recordings:/var/spool/asterisk/recording
+    restart: unless-stopped
+
+  # ─── Vosk API (Легкая Оффлайн модель) ───────────────
+  vosk:
+    build: ./vosk_server
+    container_name: vosk_ru_small
+    ports:
+      - "2700:2700"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

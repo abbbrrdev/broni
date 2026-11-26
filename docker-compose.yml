@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # ─── База Данных ─────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai_assistant_db
+    environment:
+      POSTGRES_DB: ai_assistant
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_INITDB_ARGS: "--auth-host=md5"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # ─── Основной Бэкенд (Bun + Elysia) ───────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ai_backend
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres123@postgres:5432/ai_assistant?schema=public
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - EDGE_TTS_VOICE=ru-RU-DmitryNeural
+      - ASTERISK_URL=http://asterisk:8088/ari
+      - ASTERISK_WS_URL=ws://asterisk:8088/ari/events
+      - ASTERISK_ARI_HOST=asterisk
+      - VOSK_HOST=vosk
+      - ASTERISK_ARI_USER=${ASTERISK_ARI_USER:-ari_admin}
+      - ASTERISK_ARI_PASS=${ASTERISK_ARI_PASS:-changeme}
+      - API_SECRET_KEY=${API_SECRET_KEY:-dev-secret-token}
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./backend/asterisk/recordings:/app/asterisk/recordings
+      - ./backend/asterisk/sounds:/app/asterisk/sounds
+    depends_on:
+      - postgres
+      - asterisk
+      - vosk
+    restart: unless-stopped
+
+  # ─── Telegram Бот ────────────────────────────────────────
+  telegram_bot:
+    build:
+      context: ./telegram-bot
+      dockerfile: Dockerfile
+    container_name: ai_telegram_bot
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - API_URL=http://backend:3000/api/process-request
+      - API_SECRET_KEY=${API_SECRET_KEY:-dev-secret-token}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # ─── Asterisk ARI ────────────────────────────────────────
+  asterisk:
+    build: ./backend/asterisk
+    container_name: ai_asterisk
+    ports:
+      - "5060:5060/udp"
+      - "8088:8088"
+      - "10000-10100:10000-10100/udp"
+    environment:
+      ASTERISK_EXTERNAL_IP: ${ASTERISK_EXTERNAL_IP:-127.0.0.1}
+      ZADARMA_SIP_PASSWORD: ${ZADARMA_SIP_PASSWORD}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./backend/asterisk/pjsip.conf:/etc/asterisk/pjsip.conf:ro
+      - ./backend/asterisk/extensions.conf:/etc/asterisk/extensions.conf:ro
+      - ./backend/asterisk/ari.conf:/etc/asterisk/ari.conf:ro
+      - ./backend/asterisk/http.conf:/etc/asterisk/http.conf:ro
+      - ./backend/asterisk/rtp.conf:/etc/asterisk/rtp.conf:ro
+      - ./backend/asterisk/modules.conf:/etc/asterisk/modules.conf:ro
+      - ./backend/asterisk/sounds:/var/lib/asterisk/sounds/custom
+      - ./backend/asterisk/recordings:/var/spool/asterisk/recording
+    restart: unless-stopped
+
+  # ─── Vosk API (Оффлайн Распознавание) ────────────────────
+  vosk:
+    build: ./backend/vosk_server
+    container_name: vosk_ru_small
+    ports:
+      - "2700:2700"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

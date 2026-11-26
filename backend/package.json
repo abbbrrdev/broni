@@ -1,0 +1,24 @@
+{
+  "name": "backend",
+  "version": "2.0.0",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "start": "bun run dist/index.js"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.4.2",
+    "@elysiajs/jwt": "^1.4.2",
+    "@prisma/client": "^5.0.0",
+    "elysia": "latest",
+    "tail": "^2.2.6",
+    "twilio": "^5.13.1",
+    "zadarma": "^1.1.2"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.1",
+    "bun-types": "latest",
+    "prisma": "^5.0.0"
+  },
+  "module": "src/index.js"
+}

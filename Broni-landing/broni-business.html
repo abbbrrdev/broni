@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Broni для бизнеса — ИИ-агент для обзвона клиентов</title>
+<link rel="icon" type="image/png" href="logo/Blogo white.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080808;
+  --bg2: #0f0f0f;
+  --surface: #141414;
+  --surface2: #1a1a1a;
+  --surface3: #222222;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f5f5f5;
+  --text2: #a0a0a0;
+  --text3: #606060;
+  --white: #ffffff;
+  --accent: #ffffff;
+  --radius: 12px;
+  --radius-lg: 20px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Geist', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  max-width: 1200px;
+  padding: 10px 40px;
+  border-radius: 100px;
+  background: rgba(12,12,12,0);
+  backdrop-filter: blur(0px);
+  border: 1px solid transparent;
+  transition: all 0.4s ease-in-out;
+}
+
+nav.scrolled {
+  background: rgba(15,15,15,0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.logo-img { height: 38px; width: auto; }
+
+.logo-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.04em;
+}
+
+.nav-links {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 400;
+  padding: 7px 14px;
+  border-radius: 100px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+
+.nav-right { display: flex; align-items: center; gap: 12px; }
+
+.btn-back {
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 13.5px;
+  padding: 8px 14px;
+  border-radius: 100px;
+  transition: color 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-back:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+
+.btn-nav-cta {
+  background: var(--white);
+  color: #000;
+  border: none;
+  padding: 9px 20px;
+  border-radius: 100px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: 'Geist', sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+
+.btn-nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* ── HERO ── */
+.biz-hero-wrap {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.biz-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.biz-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(5,5,5,0.55) 0%,
+    rgba(5,5,5,0.40) 40%,
+    rgba(5,5,5,0.65) 80%,
+    rgba(8,8,8,0.95) 100%
+  );
+  z-index: 1;
+}
+
+.biz-hero {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 140px 40px 100px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.biz-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  width: 100%;
+}
+
+.biz-hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--border2);
+  border-radius: 100px;
+  padding: 5px 14px 5px 8px;
+  font-size: 12px;
+  color: var(--text1);
+  font-weight: 500;
+  margin-bottom: 28px;
+}
+
+.biz-hero-tag-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--white);
+  border-radius: 50%;
+  
+}
+
+.biz-hero h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(52px, 6vw, 80px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  margin-bottom: 20px;
+  background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.90) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+}
+
+.biz-hero h1 em {
+  font-style: italic;
+}
+
+.biz-hero-sub {
+  font-size: 17px;
+  color: var(--text1);
+  line-height: 1.65;
+  font-weight: 300;
+  margin-bottom: 40px;
+  max-width: 440px;
+}
+
+.biz-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-primary-lg {
+  background: var(--white);
+  color: #000;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Geist', sans-serif;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-primary-lg:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 12px 40px rgba(255,255,255,0.12); }
+
+.btn-ghost-lg {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: 'Geist', sans-serif;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-ghost-lg:hover { background: rgba(255,255,255,0.1); }
+
+/* hero right — animated call stack */
+.hero-call-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.hero-call-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: slideIn 0.5s ease both;
+}
+
+.hero-call-card:nth-child(1) { animation-delay: 0.1s; }
+.hero-call-card:nth-child(2) { animation-delay: 0.25s; }
+.hero-call-card:nth-child(3) { animation-delay: 0.4s; }
+.hero-call-card:nth-child(4) { animation-delay: 0.55s; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.hcc-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+
+.hcc-info { flex: 1; }
+.hcc-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.hcc-status { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: 'Geist Mono', monospace; }
+
+.hcc-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.hcc-badge.calling { background: rgba(255,255,255,0.08); color: var(--text2); border: 1px solid var(--border2); display: flex; align-items: center; gap: 5px; }
+.hcc-badge.done { background: rgba(100,220,100,0.12); color: #6ddc6d; border: 1px solid rgba(100,220,100,0.2); }
+.hcc-badge.queued { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+
+.call-pulse { width: 6px; height: 6px; background: var(--white); border-radius: 50%; animation: blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+.hero-counter {
+  margin-top: 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hcounter-label { font-size: 12px; color: var(--text3); font-family: 'Geist Mono', monospace; }
+.hcounter-val { font-size: 22px; font-weight: 800; letter-spacing: -1px; color: var(--white); }
+
+/* ── SECTION BASICS ── */
+.biz-section {
+  padding: 120px 40px;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+.section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+.section-tag::before {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: var(--text3);
+}
+
+.section-h2 {
+  font-size: clamp(34px, 4.5vw, 58px);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -2.5px;
+  margin-bottom: 16px;
+}
+
+.section-p {
+  font-size: 16px;
+  color: var(--text2);
+  line-height: 1.7;
+  font-weight: 300;
+  max-width: 520px;
+}
+
+/* ── DIVIDER ── */
+.section-divider {
+  height: 1px;
+  background: var(--border);
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+/* ── HOW IT WORKS ── */
+.biz-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin-top: 72px;
+  background: var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.biz-step {
+  background: var(--bg2);
+  padding: 44px 36px;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.biz-step:hover { background: var(--surface); }
+
+.biz-step-num {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 1px;
+  margin-bottom: 28px;
+  display: block;
+}
+
+.biz-step-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: var(--text2);
+}
+
+.biz-step-title { font-size: 17px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 10px; }
+.biz-step-desc { font-size: 13.5px; color: var(--text2); line-height: 1.65; font-weight: 300; }
+
+/* ── USE CASES ── */
+.biz-cases-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  margin-top: 72px;
+  background: var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.biz-case {
+  background: var(--bg2);
+  padding: 52px 48px;
+  transition: background 0.3s;
+  position: relative;
+}
+
+.biz-case:hover { background: var(--surface); }
+
+.biz-case-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+  color: var(--text2);
+}
+
+.biz-case-title { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 12px; }
+.biz-case-desc { font-size: 14px; color: var(--text2); line-height: 1.7; font-weight: 300; margin-bottom: 20px; }
+
+.biz-case-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.biz-case-ex {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text3);
+  padding: 10px 14px;
+  background: var(--surface2);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.biz-case-ex::before {
+  content: '→';
+  color: var(--text3);
+  flex-shrink: 0;
+}
+
+/* ── RESULTS ── */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin-top: 72px;
+  background: var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.result-card {
+  background: var(--bg2);
+  padding: 52px 44px;
+  transition: background 0.3s;
+}
+
+.result-card:hover { background: var(--surface); }
+.result-num { font-size: 60px; font-weight: 800; letter-spacing: -4px; line-height: 1; color: var(--white); margin-bottom: 10px; }
+.result-label { font-size: 15px; color: var(--text2); font-weight: 400; line-height: 1.5; }
+.result-sublabel { font-size: 12px; color: var(--text3); margin-top: 6px; font-family: 'Geist Mono', monospace; }
+
+/* ── FEATURES GRID ── */
+.biz-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin-top: 64px;
+  background: var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.biz-feature {
+  background: var(--bg2);
+  padding: 40px 36px;
+  transition: background 0.3s;
+}
+
+.biz-feature:hover { background: var(--surface); }
+
+.biz-feature-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  color: var(--text2);
+}
+
+.biz-feature-title { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 8px; }
+.biz-feature-desc { font-size: 13.5px; color: var(--text2); line-height: 1.65; font-weight: 300; }
+
+/* ── COMPARISON ── */
+.comparison-wrap {
+  margin-top: 72px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.comparison-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.comp-col-head {
+  padding: 24px 32px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+}
+
+.comp-col-head.highlight {
+  background: rgba(255,255,255,0.04);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comp-dot { width: 8px; height: 8px; background: var(--white); border-radius: 50%; }
+
+.comparison-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+
+.comparison-row:last-child { border-bottom: none; }
+
+.comp-cell {
+  padding: 18px 32px;
+  font-size: 14px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-right: 1px solid var(--border);
+}
+
+.comp-cell:last-child { border-right: none; }
+.comp-cell.highlight { background: rgba(255,255,255,0.02); color: var(--text); }
+.comp-cell.feature-name { color: var(--text); font-weight: 500; }
+
+.check { color: var(--white); }
+.cross { color: var(--text3); }
+
+/* ── PRICING ── */
+.biz-pricing {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 28px;
+  padding: 72px;
+  margin-top: 72px;
+  position: relative;
+  overflow: hidden;
+}
+
+.biz-pricing::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+.biz-pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+  margin-top: 40px;
+}
+
+.biz-price-option {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 36px;
+  transition: border-color 0.2s;
+}
+
+.biz-price-option:hover { border-color: rgba(255,255,255,0.25); }
+
+.biz-price-option.featured {
+  border-color: rgba(255,255,255,0.3);
+  background: var(--surface2);
+}
+
+.bpo-name { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px; }
+.bpo-price { font-size: 40px; font-weight: 800; letter-spacing: -2px; line-height: 1; color: var(--white); margin-bottom: 6px; }
+.bpo-period { font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+.bpo-divider { height: 1px; background: var(--border); margin-bottom: 20px; }
+
+.bpo-feats { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+.bpo-feat { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; color: var(--text2); }
+.bpo-feat-icon { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; color: var(--text3); }
+
+.btn-biz-primary {
+  display: block;
+  text-align: center;
+  background: var(--white);
+  color: #000;
+  padding: 13px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s;
+  cursor: pointer;
+  border: none;
+  font-family: 'Geist', sans-serif;
+}
+
+.btn-biz-primary:hover { opacity: 0.88; }
+
+.btn-biz-ghost {
+  display: block;
+  text-align: center;
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 13px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+  font-family: 'Geist', sans-serif;
+}
+
+.btn-biz-ghost:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.04); }
+
+/* ── CTA ── */
+.biz-cta {
+  background: #ffffff;
+  padding: 0;
+}
+
+.biz-cta-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 120px 64px;
+  text-align: center;
+}
+
+.biz-cta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+}
+
+.biz-cta-tag::before { content: ''; width: 20px; height: 1px; background: #ccc; }
+
+.biz-cta-inner h2 {
+  font-size: clamp(44px, 6vw, 76px);
+  font-weight: 800;
+  letter-spacing: -4px;
+  line-height: 0.95;
+  margin-bottom: 18px;
+  color: #0a0a0a;
+}
+
+.biz-cta-inner p { color: #777; font-size: 16px; margin-bottom: 44px; font-weight: 300; }
+
+.biz-cta-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-cta-dark {
+  background: #0a0a0a;
+  color: #fff;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Geist', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.btn-cta-dark:hover { opacity: 0.82; transform: translateY(-1px); }
+
+.btn-cta-outline {
+  background: none;
+  border: 1.5px solid #ddd;
+  color: #333;
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: 'Geist', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.btn-cta-outline:hover { border-color: #999; color: #111; }
+
+/* ── FOOTER ── */
+footer {
+  background: #ffffff;
+  border-top: 1px solid #ebebeb;
+  padding: 48px 40px 36px;
+}
+
+.footer-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.footer-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.footer-logo img { height: 32px; }
+.footer-logo-text { font-size: 16px; font-weight: 700; color: #0a0a0a; letter-spacing: -0.3px; }
+
+.footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+.footer-links a { font-size: 13px; color: #888; text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: #111; }
+
+.footer-copy { font-size: 12px; color: #bbb; font-family: 'Geist Mono', monospace; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal-box {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 520px;
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+  overflow: hidden;
+}
+
+.modal-overlay.open .modal-box { transform: translateY(0); }
+
+.modal-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+.modal-header { padding: 36px 40px 28px; border-bottom: 1px solid var(--border); }
+.modal-header h3 { font-size: 22px; font-weight: 800; letter-spacing: -1px; margin-bottom: 6px; }
+.modal-header p { font-size: 14px; color: var(--text2); font-weight: 300; }
+
+.modal-body { padding: 32px 40px 36px; }
+
+.form-group { margin-bottom: 16px; }
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  font-family: 'Geist Mono', monospace;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 13px 18px;
+  font-family: 'Geist', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input::placeholder { color: var(--text3); }
+.form-input:focus { border-color: rgba(255,255,255,0.3); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.form-select {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 13px 18px;
+  font-family: 'Geist', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23606060' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.form-select:focus { border-color: rgba(255,255,255,0.3); }
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.modal-note { font-size: 12px; color: var(--text3); font-weight: 300; }
+
+.btn-modal-submit {
+  background: var(--white);
+  color: #000;
+  border: none;
+  padding: 13px 28px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Geist', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.btn-modal-submit:hover { opacity: 0.88; }
+
+.modal-close {
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text2);
+  transition: background 0.2s;
+}
+
+.modal-close:hover { background: var(--surface3); }
+
+.modal-success { display: none; text-align: center; padding: 60px 40px; }
+.modal-success.visible { display: block; }
+
+.success-icon {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: var(--white);
+}
+
+.modal-success h4 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 10px; }
+.modal-success p { font-size: 14px; color: var(--text2); font-weight: 300; line-height: 1.6; }
+
+/* ── REVEAL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 8px 20px; }
+  .nav-links { display: none; }
+  .biz-hero-grid { grid-template-columns: 1fr; gap: 48px; }
+  .biz-hero { padding: 120px 24px 80px; }
+  .biz-section { padding: 80px 24px; }
+  .biz-steps { grid-template-columns: 1fr 1fr; }
+  .biz-cases-grid { grid-template-columns: 1fr; }
+  .results-grid { grid-template-columns: 1fr; }
+  .biz-features-grid { grid-template-columns: 1fr 1fr; }
+  .comparison-header, .comparison-row { grid-template-columns: 1fr 1fr 1fr; }
+  .biz-pricing { padding: 40px 28px; }
+  .biz-pricing-grid { grid-template-columns: 1fr; }
+  .biz-cta-inner { padding: 80px 32px; }
+  .form-row { grid-template-columns: 1fr; }
+  .modal-footer { flex-direction: column; align-items: stretch; }
+}
+</style>
+</head>
+<script>
+  window.addEventListener('scroll', function() {
+    const nav = document.querySelector('nav');
+    if (window.scrollY > 50) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  });
+</script>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="bron-landing-v7.html" class="logo">
+    <img src="logo/Blogo.png" alt="Broni" class="logo-img" style="filter:invert(1)">
+    <span class="logo-text">Broni</span>
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="#how-biz">Как работает</a></li>
+    <li><a href="#cases-biz">Сценарии</a></li>
+    <li><a href="#results">Результаты</a></li>
+    <li><a href="#pricing-biz">Цены</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <a href="bron-landing-v7.html" class="btn-back">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Для частных лиц
+    </a>
+    <a href="#" class="btn-nav-cta" onclick="event.preventDefault(); openModal()">
+      Обсудить проект
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="biz-hero-wrap">
+  <video class="biz-hero-video" autoplay muted loop playsinline preload="auto">
+    <source src="hero video/0401.mp4" type="video/mp4">
+  </video>
+  <div class="biz-hero-overlay"></div>
+  <div class="biz-hero">
+    <div class="biz-hero-grid">
+      <div>
+        <div class="biz-hero-tag">
+          <div class="biz-hero-tag-dot"></div>
+          Broni для бизнеса
+        </div>
+        <h1>Ваш ИИ-агент<br>звонит <em>клиентам.</em></h1>
+        <p class="biz-hero-sub">Broni автоматически обзванивает ваших клиентов — подтверждает записи, напоминает о визитах, снижает no-show. Без найма операторов, без скриптов, 24/7.</p>
+        <div class="biz-hero-actions">
+          <a href="#" class="btn-primary-lg" onclick="event.preventDefault(); openModal()">
+            Оставить заявку
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a href="#how-biz" class="btn-ghost-lg">Как это работает</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="hero-call-stack">
+          <div class="hero-call-card">
+            <div class="hcc-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+            </div>
+            <div class="hcc-info">
+              <div class="hcc-name">Асель Нурланова</div>
+              <div class="hcc-status">Клиника Dentis · завтра 10:00</div>
+            </div>
+            <div class="hcc-badge calling"><div class="call-pulse"></div>Звонок</div>
+          </div>
+          <div class="hero-call-card">
+            <div class="hcc-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+            </div>
+            <div class="hcc-info">
+              <div class="hcc-name">Марат Сейтжанов</div>
+              <div class="hcc-status">СПА «Элита» · сегодня 16:30</div>
+            </div>
+            <div class="hcc-badge done">Подтверждено</div>
+          </div>
+          <div class="hero-call-card">
+            <div class="hcc-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12"/></svg>
+            </div>
+            <div class="hcc-info">
+              <div class="hcc-name">Диана Ержанова</div>
+              <div class="hcc-status">BarberKing · пятница 14:00</div>
+            </div>
+            <div class="hcc-badge done">Подтверждено</div>
+          </div>
+          <div class="hero-call-card">
+            <div class="hcc-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="18" height="20" rx="1"/><path d="M9 22V12h6v10M9 6h1M9 10h1M14 6h1M14 10h1"/></svg>
+            </div>
+            <div class="hcc-info">
+              <div class="hcc-name">Тимур Абенов</div>
+              <div class="hcc-status">FitLife · понедельник 09:00</div>
+            </div>
+            <div class="hcc-badge queued">В очереди</div>
+          </div>
+        </div>
+        <div class="hero-counter">
+          <span class="hcounter-label">Звонков сегодня</span>
+          <span class="hcounter-val" id="call-counter">247</span>
+        </div>
+      </div>
+    </div>
+  </div><!-- /biz-hero -->
+</div><!-- /biz-hero-wrap -->
+
+<div style="height:1px;background:var(--border);max-width:1160px;margin:0 auto"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how-biz" class="biz-section reveal">
+  <div class="section-tag">Как работает</div>
+  <h2 class="section-h2">Запустите за<br>один день</h2>
+  <p class="section-p">Никаких сложных интеграций. Мы настраиваем всё за вас — вы получаете готового агента.</p>
+
+  <div class="biz-steps">
+    <div class="biz-step">
+      <span class="biz-step-num">01</span>
+      <div class="biz-step-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 12h.01M12 12h.01M16 12h.01M3 6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-7l-4 4v-4H5a2 2 0 01-2-2V6z"/></svg>
+      </div>
+      <div class="biz-step-title">Заявка и бриф</div>
+      <div class="biz-step-desc">Вы рассказываете о бизнесе — кому звонить, зачем, что говорить. Мы берём это за основу.</div>
+    </div>
+    <div class="biz-step">
+      <span class="biz-step-num">02</span>
+      <div class="biz-step-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+      </div>
+      <div class="biz-step-title">Настройка агента</div>
+      <div class="biz-step-desc">Мы настраиваем голос, сценарии разговора и логику — агент говорит как ваш сотрудник.</div>
+    </div>
+    <div class="biz-step">
+      <span class="biz-step-num">03</span>
+      <div class="biz-step-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 6.5C2.5 14.784 9.216 21.5 17.5 21.5c.63 0 1.25-.036 1.861-.106a1.52 1.52 0 001.338-1.524v-2.896a1.52 1.52 0 00-1.21-1.487l-2.974-.595a1.52 1.52 0 00-1.455.468l-1.03 1.237a11.03 11.03 0 01-5.127-5.127l1.238-1.03a1.52 1.52 0 00.467-1.456l-.594-2.974A1.52 1.52 0 008.526 4.5H5.63A1.52 1.52 0 004.106 5.84 13.567 13.567 0 002.5 6.5z"/></svg>
+      </div>
+      <div class="biz-step-title">Загружаете список</div>
+      <div class="biz-step-desc">Передаёте список клиентов — вручную или через Excel. Никакой технической экспертизы не нужно.</div>
+    </div>
+    <div class="biz-step">
+      <span class="biz-step-num">04</span>
+      <div class="biz-step-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+      </div>
+      <div class="biz-step-title">Agент работает</div>
+      <div class="biz-step-desc">Broni звонит, ведёт разговор, фиксирует ответы. Вы получаете отчёт по каждому контакту.</div>
+    </div>
+  </div>
+</section>
+
+<div style="height:1px;background:var(--border);max-width:1160px;margin:0 auto"></div>
+
+<!-- USE CASES -->
+<section id="cases-biz" class="biz-section reveal">
+  <div class="section-tag">Сценарии</div>
+  <h2 class="section-h2">Для каких задач<br>подходит Broni</h2>
+  <p class="section-p">Любой бизнес, где клиентам нужно звонить регулярно — наш клиент.</p>
+
+  <div class="biz-cases-grid">
+    <div class="biz-case">
+      <div class="biz-case-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
+      </div>
+      <div class="biz-case-title">Клиники и медцентры</div>
+      <div class="biz-case-desc">Врачи теряют до 30% времени из-за пациентов, которые не пришли. Broni обзванивает и подтверждает каждую запись заранее.</div>
+      <div class="biz-case-examples">
+        <div class="biz-case-ex">Напоминание о приёме за 24 часа и за 2 часа</div>
+        <div class="biz-case-ex">Подтверждение или перенос записи голосом</div>
+        <div class="biz-case-ex">Сбор обратной связи после визита</div>
+        <div class="biz-case-ex">Информирование о результатах анализов</div>
+      </div>
+    </div>
+    <div class="biz-case">
+      <div class="biz-case-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 22V6c0-2.761 1.343-5 3-5M6 1v6M9 1v6M9 7c0 2.761-1.343 5-3 5v9M21 22V8.5C21 5.462 19.209 3 17 3s-4 2.462-4 5.5V22"/><path d="M13 13h8"/></svg>
+      </div>
+      <div class="biz-case-title">Рестораны и банкеты</div>
+      <div class="biz-case-desc">Подтверждение крупных бронирований и банкетов снижает потери от неявки гостей.</div>
+      <div class="biz-case-examples">
+        <div class="biz-case-ex">Подтверждение брони за день до мероприятия</div>
+        <div class="biz-case-ex">Уточнение деталей: меню, количество гостей</div>
+        <div class="biz-case-ex">Напоминание о предоплате</div>
+      </div>
+    </div>
+    <div class="biz-case">
+      <div class="biz-case-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      </div>
+      <div class="biz-case-title">Салоны красоты и СПА</div>
+      <div class="biz-case-desc">Мастера теряют деньги из-за пустых слотов. Автоматическое напоминание за день резко снижает отмены в последний момент.</div>
+      <div class="biz-case-examples">
+        <div class="biz-case-ex">Напоминание о визите к мастеру</div>
+        <div class="biz-case-ex">Предложение записаться снова после визита</div>
+        <div class="biz-case-ex">Сбор отзывов и рейтинга мастера</div>
+      </div>
+    </div>
+    <div class="biz-case">
+      <div class="biz-case-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+      </div>
+      <div class="biz-case-title">Фитнес-клубы и студии</div>
+      <div class="biz-case-desc">Реактивируйте спящих клиентов и напоминайте о групповых занятиях — без нагрузки на администраторов.</div>
+      <div class="biz-case-examples">
+        <div class="biz-case-ex">Напоминание о групповом занятии</div>
+        <div class="biz-case-ex">Реактивация клиентов, которые давно не приходили</div>
+        <div class="biz-case-ex">Продление абонемента — звонок до истечения</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div style="height:1px;background:var(--border);max-width:1160px;margin:0 auto"></div>
+
+<!-- RESULTS -->
+<section id="results" class="biz-section reveal">
+  <div class="section-tag">Результаты</div>
+  <h2 class="section-h2">Что получает<br>ваш бизнес</h2>
+  <p class="section-p">Реальные цифры компаний, которые используют автоматические обзвоны для подтверждения записей.</p>
+
+  <div class="results-grid">
+    <div class="result-card">
+      <div class="result-num">−70%</div>
+      <div class="result-label">Снижение no-show клиентов</div>
+      <div class="result-sublabel">По сравнению с ручными напоминаниями</div>
+    </div>
+    <div class="result-card">
+      <div class="result-num">3 мин</div>
+      <div class="result-label">Время запуска первого обзвона</div>
+      <div class="result-sublabel">После передачи списка клиентов</div>
+    </div>
+    <div class="result-card">
+      <div class="result-num">24/7</div>
+      <div class="result-label">Работает без выходных и перерывов</div>
+      <div class="result-sublabel">Звонки в удобное для клиента время</div>
+    </div>
+  </div>
+</section>
+
+<div style="height:1px;background:var(--border);max-width:1160px;margin:0 auto"></div>
+
+<!-- FEATURES -->
+<section class="biz-section reveal">
+  <div class="section-tag">Возможности</div>
+  <h2 class="section-h2">Всё что нужно<br>для обзвона</h2>
+
+  <div class="biz-features-grid">
+    <div class="biz-feature">
+      <div class="biz-feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 6.5C2.5 14.784 9.216 21.5 17.5 21.5c.63 0 1.25-.036 1.861-.106a1.52 1.52 0 001.338-1.524v-2.896a1.52 1.52 0 00-1.21-1.487l-2.974-.595a1.52 1.52 0 00-1.455.468l-1.03 1.237a11.03 11.03 0 01-5.127-5.127l1.238-1.03a1.52 1.52 0 00.467-1.456l-.594-2.974A1.52 1.52 0 008.526 4.5H5.63A1.52 1.52 0 004.106 5.84 13.567 13.567 0 002.5 6.5z"/></svg>
+      </div>
+      <div class="biz-feature-title">Живой разговор</div>
+      <div class="biz-feature-desc">Агент слышит ответы, реагирует на уточнения и ведёт диалог — собеседник думает, что говорит с человеком.</div>
+    </div>
+    <div class="biz-feature">
+      <div class="biz-feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+      </div>
+      <div class="biz-feature-title">Три языка</div>
+      <div class="biz-feature-desc">Казахский, русский, английский. Агент автоматически переключается на язык клиента.</div>
+    </div>
+    <div class="biz-feature">
+      <div class="biz-feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </div>
+      <div class="biz-feature-title">Расписание звонков</div>
+      <div class="biz-feature-desc">Настройте время обзвона — утром, вечером или строго в рабочие часы. Агент не побеспокоит ночью.</div>
+    </div>
+    <div class="biz-feature">
+      <div class="biz-feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+      </div>
+      <div class="biz-feature-title">Отчёт по каждому звонку</div>
+      <div class="biz-feature-desc">После обзвона вы получаете таблицу: кто ответил, что сказал, подтвердил или перенёс.</div>
+    </div>
+    <div class="biz-feature">
+      <div class="biz-feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <div class="biz-feature-title">Повторные попытки</div>
+      <div class="biz-feature-desc">Если клиент не взял трубку — агент перезвонит автоматически в другое время. Без участия персонала.</div>
+    </div>
+    <div class="biz-feature">
+      <div class="biz-feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <div class="biz-feature-title">Персональный менеджер</div>
+      <div class="biz-feature-desc">Для Business-клиентов — выделенный менеджер, который помогает с настройкой и оптимизацией сценариев.</div>
+    </div>
+  </div>
+</section>
+
+<div style="height:1px;background:var(--border);max-width:1160px;margin:0 auto"></div>
+
+<!-- COMPARISON -->
+<section class="biz-section reveal">
+  <div class="section-tag">Сравнение</div>
+  <h2 class="section-h2">Broni vs<br>штатный оператор</h2>
+  <p class="section-p">Посчитайте сами — стоимость одного оператора против стоимости Broni.</p>
+
+  <div class="comparison-wrap">
+    <div class="comparison-header">
+      <div class="comp-col-head">Параметр</div>
+      <div class="comp-col-head">Оператор колл-центра</div>
+      <div class="comp-col-head highlight"><div class="comp-dot"></div>Broni</div>
+    </div>
+    <div class="comparison-row">
+      <div class="comp-cell feature-name">Стоимость в месяц</div>
+      <div class="comp-cell">150 000–300 000 ₸</div>
+      <div class="comp-cell highlight">По запросу</div>
+    </div>
+    <div class="comparison-row">
+      <div class="comp-cell feature-name">Часы работы</div>
+      <div class="comp-cell">8–10 часов в день</div>
+      <div class="comp-cell highlight"><span class="check">✓</span> 24/7</div>
+    </div>
+    <div class="comparison-row">
+      <div class="comp-cell feature-name">Параллельные звонки</div>
+      <div class="comp-cell">1 одновременно</div>
+      <div class="comp-cell highlight"><span class="check">✓</span> Неограниченно</div>
+    </div>
+    <div class="comparison-row">
+      <div class="comp-cell feature-name">Человеческий фактор</div>
+      <div class="comp-cell">Ошибки, забывает</div>
+      <div class="comp-cell highlight"><span class="check">✓</span> Всегда по сценарию</div>
+    </div>
+    <div class="comparison-row">
+      <div class="comp-cell feature-name">Многоязычность</div>
+      <div class="comp-cell"><span class="cross">✗</span> Обычно нет</div>
+      <div class="comp-cell highlight"><span class="check">✓</span> КАЗ / РУС / ENG</div>
+    </div>
+    <div class="comparison-row">
+      <div class="comp-cell feature-name">Отчёт после звонка</div>
+      <div class="comp-cell">Ручной, неполный</div>
+      <div class="comp-cell highlight"><span class="check">✓</span> Автоматически</div>
+    </div>
+    <div class="comparison-row">
+      <div class="comp-cell feature-name">Запуск</div>
+      <div class="comp-cell">Найм, обучение — 2–4 нед.</div>
+      <div class="comp-cell highlight"><span class="check">✓</span> 1 рабочий день</div>
+    </div>
+  </div>
+</section>
+
+<div style="height:1px;background:var(--border);max-width:1160px;margin:0 auto"></div>
+
+<!-- PRICING -->
+<section id="pricing-biz" class="biz-section reveal">
+  <div class="section-tag">Цены</div>
+  <h2 class="section-h2">Гибкие условия<br>под ваш объём</h2>
+  <p class="section-p">Цена зависит от количества клиентов и частоты обзвонов. Оставьте заявку — подберём оптимальный пакет.</p>
+
+  <div class="biz-pricing">
+    <div class="biz-pricing-grid">
+      <div class="biz-price-option">
+        <div class="bpo-name">Стартовый</div>
+        <div class="bpo-price">По запросу</div>
+        <div class="bpo-period">до 500 клиентов в месяц</div>
+        <div class="bpo-divider"></div>
+        <div class="bpo-feats">
+          <div class="bpo-feat"><svg class="bpo-feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>Настройка сценария разговора</div>
+          <div class="bpo-feat"><svg class="bpo-feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>Казахский, русский, английский</div>
+          <div class="bpo-feat"><svg class="bpo-feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>Отчёт после обзвона</div>
+          <div class="bpo-feat"><svg class="bpo-feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>До 3 повторных попыток</div>
+        </div>
+        <button class="btn-biz-ghost" onclick="openModal()">Оставить заявку</button>
+      </div>
+      <div class="biz-price-option featured">
+        <div class="bpo-name">Корпоративный</div>
+        <div class="bpo-price">По запросу</div>
+        <div class="bpo-period">от 500 клиентов в месяц</div>
+        <div class="bpo-divider"></div>
+        <div class="bpo-feats">
+          <div class="bpo-feat"><svg class="bpo-feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>Всё из стартового пакета</div>
+          <div class="bpo-feat"><svg class="bpo-feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>Кастомный голос агента</div>
+          <div class="bpo-feat"><svg class="bpo-feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>Несколько сценариев</div>
+          <div class="bpo-feat"><svg class="bpo-feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>Персональный менеджер</div>
+          <div class="bpo-feat"><svg class="bpo-feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>Приоритетная поддержка 24/7</div>
+        </div>
+        <button class="btn-biz-primary" onclick="openModal()">Обсудить проект →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="biz-cta">
+  <div class="biz-cta-inner">
+    <div class="biz-cta-tag">Начать</div>
+    <h2>Сократите no-show<br>уже в этом месяце</h2>
+    <p>Оставьте заявку — мы свяжемся в течение 24 часов и настроим агента под ваш бизнес.</p>
+    <div class="biz-cta-row">
+      <a href="#" class="btn-cta-dark" onclick="event.preventDefault(); openModal()">
+        Оставить заявку
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a href="bron-landing-v7.html" class="btn-cta-outline">Для частных лиц →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <a href="bron-landing-v7.html" class="footer-logo">
+      <img src="logo/Blogo.png" alt="Broni" style="height:28px">
+      <span class="footer-logo-text">Broni</span>
+    </a>
+    <div class="footer-links">
+      <a href="bron-landing-v7.html">Для частных лиц</a>
+      <a href="#">О компании</a>
+      <a href="#">Контакты</a>
+      <a href="#">Конфиденциальность</a>
+    </div>
+    <span class="footer-copy">© 2025 Broni</span>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="contactModal" onclick="handleOverlayClick(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div id="modal-form-content">
+      <div class="modal-header">
+        <h3>Обсудить проект</h3>
+        <p>Расскажите о бизнесе — мы подберём решение и ответим в течение 24 часов.</p>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Имя</label>
+            <input class="form-input" type="text" placeholder="Алибек" id="field-name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Телефон</label>
+            <input class="form-input" type="tel" placeholder="+7 700 000 00 00" id="field-phone">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Компания</label>
+          <input class="form-input" type="text" placeholder="ТОО «Название»" id="field-company">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Сфера</label>
+            <select class="form-select" id="field-industry">
+              <option value="">Выберите...</option>
+              <option>Клиника / медцентр</option>
+              <option>Ресторан / кафе</option>
+              <option>Салон красоты / СПА</option>
+              <option>Фитнес-клуб</option>
+              <option>Автосервис</option>
+              <option>Другое</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Клиентов в месяц</label>
+            <select class="form-select" id="field-volume">
+              <option value="">Выберите...</option>
+              <option>До 100</option>
+              <option>100–500</option>
+              <option>500–2000</option>
+              <option>Более 2000</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <span class="modal-note">Ответим в течение 24 часов</span>
+          <button class="btn-modal-submit" onclick="submitForm()">Отправить →</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-success" id="modal-success">
+      <div class="success-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h4>Заявка отправлена!</h4>
+      <p>Мы получили ваши данные и свяжемся<br>с вами в течение 24 часов.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Scroll reveal
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(r => io.observe(r));
+
+  // Counter animation
+  let count = 247;
+  setInterval(() => {
+    if (Math.random() > 0.6) {
+      count += Math.floor(Math.random() * 3) + 1;
+      const el = document.getElementById('call-counter');
+      if (el) el.textContent = count;
+    }
+  }, 2800);
+
+  // Modal
+  function openModal() {
+    document.getElementById('contactModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('modal-form-content').style.display = '';
+    document.getElementById('modal-success').classList.remove('visible');
+  }
+
+  function closeModal() {
+    document.getElementById('contactModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('contactModal')) closeModal();
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  function submitForm() {
+    const name = document.getElementById('field-name').value.trim();
+    const phone = document.getElementById('field-phone').value.trim();
+    document.getElementById('field-name').style.borderColor = name ? '' : 'rgba(255,80,80,0.5)';
+    document.getElementById('field-phone').style.borderColor = phone ? '' : 'rgba(255,80,80,0.5)';
+    if (!name || !phone) return;
+    document.getElementById('modal-form-content').style.display = 'none';
+    document.getElementById('modal-success').classList.add('visible');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Vosk STT model — downloaded at setup time, not committed (see README)
+model/
+
+# environment
+.env
+
+# python
+__pycache__/
+*.pyc
+venv/
+.venv/

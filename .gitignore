@@ -1,0 +1,36 @@
+# dependencies
+node_modules/
+
+# environments
+.env
+.env.local
+
+# build
+dist/
+build/
+out/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Asterisk & local data
+asterisk/recordings/*
+!asterisk/recordings/.gitkeep
+postgres-data/
+*.sqlite
+*.db
